@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Personal Finance Manager - Login/Register</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f4f8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background: #fff;
+      padding: 30px 40px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      width: 350px;
+      text-align: center;
+    }
+    h1 {
+      font-size: 28px;
+      color: #007bff;
+      margin-bottom: 25px;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+    }
+    h2 {
+      margin-bottom: 20px;
+      color: #333;
+    }
+    input[type="email"], input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0 20px 0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #007bff;
+      border: none;
+      color: white;
+      font-size: 16px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .toggle-text {
+      margin-top: 15px;
+      font-size: 14px;
+      color: #555;
+    }
+    .toggle-text span {
+      color: #007bff;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Personal Finance Manager</h1>
+
+    <div id="registerDiv">
+      <h2>Register</h2>
+      <input id="regEmail" type="email" placeholder="Email" required>
+      <input id="regPassword" type="password" placeholder="Password" required>
+      <button onclick="register()">Register</button>
+      <div class="toggle-text">
+        Already have an account? <span onclick="showLogin()">Login</span>
+      </div>
+    </div>
+
+    <div id="loginDiv" style="display:none;">
+      <h2>Login</h2>
+      <input id="loginEmail" type="email" placeholder="Email" required>
+      <input id="loginPassword" type="password" placeholder="Password" required>
+      <button onclick="login()">Login</button>
+      <div class="toggle-text">
+        Don't have an account? <span onclick="showRegister()">Register</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function showLogin() {
+      document.getElementById('registerDiv').style.display = 'none';
+      document.getElementById('loginDiv').style.display = 'block';
+    }
+
+    function showRegister() {
+      document.getElementById('loginDiv').style.display = 'none';
+      document.getElementById('registerDiv').style.display = 'block';
+    }
+
+    async function register() {
+      const email = document.getElementById('regEmail').value.trim();
+      const password = document.getElementById('regPassword').value.trim();
+      if (!email || !password) {
+        alert('Please fill all fields');
+        return;
+      }
+      try {
+        const res = await fetch('http://localhost:5000/api/register', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ email, password }),
+        });
+        const data = await res.json();
+        alert(data.message);
+        if (res.ok) {
+          showLogin();
+        }
+      } catch (error) {
+        alert('Error connecting to server');
+      }
+    }
+
+    async function login() {
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value.trim();
+      if (!email || !password) {
+        alert('Please fill all fields');
+        return;
+      }
+      try {
+        const res = await fetch('http://localhost:5000/api/login', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ email, password }),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          localStorage.setItem('userEmail', data.userEmail); // ✅ FIXED
+          alert(data.message);
+          window.location.href = 'finance.html';
+        } else {
+          alert('Invalid credentials');
+        }
+      } catch (error) {
+        alert('Error connecting to server');
+      }
+    }
+  </script>
+</body>
+</html>
